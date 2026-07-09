@@ -1,6 +1,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <stdio.h>
+#include "render.h"
 
 const char *vertexShaderSource = "#version 330 core\n"
 "layout (location = 0) in vec3 aPos;\n"
@@ -37,7 +38,7 @@ unsigned int render_create_shader(char** shaderSource, int shaderType) {
     return shaderID;
 }
 
-void render_initialise(){
+RenderState render_initialise(){
     #ifndef NDEBUG
     printf("Initalising OpenGL Buffers.\n");
     #endif
@@ -61,6 +62,10 @@ void render_initialise(){
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
 
+    unsigned int VAO;
+    glGenVertexArrays(1, &VAO);
+    glBindVertexArray(VAO);
+
     // 0. copy our vertices array in a buffer for OpenGL to use
     unsigned int VBO;
     glGenBuffers(1, &VBO);
@@ -74,10 +79,15 @@ void render_initialise(){
     // 2. use our shader program when we want to render an object
     glUseProgram(shaderProgram);
 
-    // 3. now draw the object?
+    RenderState r = {.VAO = VAO, .shaderProgram = shaderProgram};
+    return r;
 }
 
-void render_frame() {
+void render_frame(RenderState* s) {
     glClearColor(0.5f, 0.5, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
+
+    glUseProgram(s->shaderProgram);
+    glBindVertexArray(s->VAO);
+    glDrawArrays(GL_TRIANGLES, 0, 3);
 }
