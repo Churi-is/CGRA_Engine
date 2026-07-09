@@ -3,12 +3,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-void exit_app(int code) {
+void window_destroy() {
     glfwTerminate();
-    exit(code);
 }
 
-GLFWwindow* initialise_glfw_window() {
+GLFWwindow* window_init() {
     #ifndef NDEBUG
     printf("Initalising GLFW.\n");
     #endif

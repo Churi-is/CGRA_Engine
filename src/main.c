@@ -2,7 +2,7 @@
 #include <GLFW/glfw3.h>
 #include <stdio.h>
 #include "render/render.h"
-#include "render/window.h"
+#include "window/window.h"
 #include "input/input.h"
 
 int main()
@@ -11,7 +11,7 @@ int main()
     printf("You are Running a debug build.\n\n\n");
     #endif
 
-    GLFWwindow* window = initialise_glfw_window();
+    GLFWwindow* window = window_init();
 
     // Main glfw loop
     while(!glfwWindowShouldClose(window)){
@@ -23,5 +23,6 @@ int main()
         glfwPollEvents();
     }
 
-    exit_app(0);
+    window_destroy();
+    return 0;
 }
