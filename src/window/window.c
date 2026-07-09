@@ -25,7 +25,7 @@ GLFWwindow* window_init() {
         #ifndef NDEBUG
         printf("Failed to create GLFW window\n");
         #endif
-        exit_app(-1);
+        exit(-1);
     }
     glfwMakeContextCurrent(window);
 
@@ -37,7 +37,7 @@ GLFWwindow* window_init() {
         #ifndef NDEBUG
         printf("Failed to initialize GLAD\n");
         #endif
-        exit_app(-1);
+        exit(-1);
     }
 
     // Set the GL viewport

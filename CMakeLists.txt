@@ -47,7 +47,7 @@ find_package(OpenGL REQUIRED)
 add_executable(${PROJECT_NAME} 
     src/main.c
     src/render/render.c
-    src/render/window.c
+    src/window/window.c
     src/input/input.c
 )
 

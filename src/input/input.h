@@ -2,4 +2,4 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-void process_input(GLFWwindow* window);
+void input_process(GLFWwindow* window);

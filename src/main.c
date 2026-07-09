@@ -15,9 +15,9 @@ int main()
 
     // Main glfw loop
     while(!glfwWindowShouldClose(window)){
-        process_input(window);
+        input_process(window);
 
-        render();
+        render_frame();
 
         glfwSwapBuffers(window);
         glfwPollEvents();
