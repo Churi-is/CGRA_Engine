@@ -22,7 +22,8 @@ int render_check_shader(unsigned int shaderID);
 
 unsigned int render_create_shader(char** shaderSource, int shaderType);
 
-Mesh render_create_mesh(float vertices[], unsigned int indices[]);
+Mesh render_create_mesh(const float *vertices, size_t vertex_bytes,
+                        const unsigned int *indices, size_t index_bytes);
 Material render_create_material(char** vertSource, char** fragSource);
 
 Object render_initialise();
