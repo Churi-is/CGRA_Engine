@@ -12,6 +12,7 @@ int main()
     #endif
 
     GLFWwindow* window = window_init();
+    render_initialise();
 
     // Main glfw loop
     while(!glfwWindowShouldClose(window)){
