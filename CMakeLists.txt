@@ -46,7 +46,16 @@ find_package(OpenGL REQUIRED)
 ### vvv My Code vvv
 add_executable(${PROJECT_NAME} 
     src/main.c
+    src/render/render.c
+    src/render/window.c
+    src/input/input.c
 )
+
+if (MSVC)
+    target_compile_options(${PROJECT_NAME} PRIVATE /W4 /we4013 /we4028 /permissive-)
+else()
+    target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -Werror=implicit-function-declaration)
+endif()
 
 
 target_include_directories(${PROJECT_NAME} PRIVATE
