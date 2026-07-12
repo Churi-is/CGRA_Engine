@@ -49,6 +49,7 @@ add_executable(${PROJECT_NAME}
     src/render/render.c
     src/window/window.c
     src/input/input.c
+    src/render/shader.c
 )
 
 if (MSVC)

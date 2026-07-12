@@ -1,4 +1,5 @@
 #pragma once
+#include "shader.h"
 
 typedef struct {
     unsigned int VAO;
@@ -7,12 +8,8 @@ typedef struct {
 } Mesh;
 
 typedef struct {
-    unsigned int shaderProgram;
-} Material;
-
-typedef struct {
     Mesh mesh;
-    Material mat;
+    Shader s;
 } Object;
 
 // so a mesh is a VAO + VBO + EBO
@@ -24,7 +21,6 @@ unsigned int render_create_shader(char** shaderSource, int shaderType);
 
 Mesh render_create_mesh(const float *vertices, size_t vertex_bytes,
                         const unsigned int *indices, size_t index_bytes);
-Material render_create_material(char** vertSource, char** fragSource);
 
 Object render_initialise();
 

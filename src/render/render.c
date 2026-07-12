@@ -1,20 +1,9 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <stdio.h>
+#include <math.h>
 #include "render.h"
-
-const char *vertexShaderSource = "#version 330 core\n"
-    "layout (location = 0) in vec3 aPos;\n"
-    "void main()\n"
-    "{\n"
-    "   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
-    "}\0";
-const char *fragmentShaderSource = "#version 330 core\n"
-    "out vec4 FragColor;\n"
-    "void main()\n"
-    "{\n"
-    "   FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
-    "}\n\0";
+#include "shader.h"
 
 int render_check_shader(unsigned int shaderID) {
     int success;
@@ -43,20 +32,20 @@ Object render_initialise(){
     #endif
     // Triangle verts and indices
     float vertices[] = {
-         0.5f,  0.5f, 0.0f,  // top right
-         0.5f, -0.5f, 0.0f,  // bottom right
-        -0.5f, -0.5f, 0.0f,  // bottom left
-        -0.5f,  0.5f, 0.0f   // top left 
+    // positions        // colors
+     0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, // bottom right
+    -0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, // bottom left
+     0.0f,  0.5f, 0.0f, 0.0f, 0.0f, 1.0f // top
     };
     unsigned int indices[] = {  // note that we start from 0!
-        0, 1, 3,  // first Triangle
-        1, 2, 3   // second Triangle
+        0, 1, 2
     };
 
     Mesh mesh = render_create_mesh(vertices, sizeof(vertices), indices, sizeof(indices));
-    Material mat = render_create_material(&vertexShaderSource, &fragmentShaderSource);
+    
+    Shader s = shader_create_from_paths("./src/render/shaders/vert.glsl", "./src/render/shaders/frag.glsl");
 
-    Object o = {.mesh=mesh, .mat=mat};
+    Object o = {.mesh=mesh, .s=s};
     return o;
 }
 
@@ -76,8 +65,10 @@ Mesh render_create_mesh(const float *vertices, size_t vertex_bytes,
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, index_bytes, indices, GL_STATIC_DRAW);
         
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float),(void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3* sizeof(float)));
+    glEnableVertexAttribArray(1);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0); 
     glBindVertexArray(0);
@@ -86,41 +77,19 @@ Mesh render_create_mesh(const float *vertices, size_t vertex_bytes,
     return m;
 }
 
-// NOTE: Replace or make another that uses file input instead. also could take in a output pointer if i want to make it a pattern.
-Material render_create_material(char** vertSource, char** fragSource) {
-    unsigned int vertexShader = 
-        render_create_shader(vertSource, GL_VERTEX_SHADER);
-
-    unsigned int fragmentShader = 
-        render_create_shader(fragSource, GL_FRAGMENT_SHADER);
-
-    unsigned int shaderProgram = glCreateProgram();
-
-    glAttachShader(shaderProgram, vertexShader);
-    glAttachShader(shaderProgram, fragmentShader);
-
-    glLinkProgram(shaderProgram);
-
-    int success;
-    char infoLog[512];
-    glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
-    if (!success) {
-        glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
-        printf("ERROR::SHADER::VERTEX::COMPILATION_FAILED\n %s\n", infoLog);
-    }
-
-    glDeleteShader(vertexShader);
-    glDeleteShader(fragmentShader);
-
-    Material m = {.shaderProgram=shaderProgram};
-    return m;
-}
-
 void render_frame(Object* o) {
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
-    glUseProgram(o->mat.shaderProgram);
+    unsigned int sp = o->s.ID;
+    glUseProgram(sp);
+
+    float timeValue = (float)glfwGetTime();
+    float greenValue = (float)(sin(timeValue) / 2.0f) + 0.5f;
+    int vertexColorLocation = glGetUniformLocation(sp, "ourColor");
+    glUseProgram(sp);
+    glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);
+
     glBindVertexArray(o->mesh.VAO);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 }
