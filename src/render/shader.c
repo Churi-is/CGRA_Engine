@@ -9,9 +9,9 @@ void read_file(const char* path, char** out) {
     long length;
     FILE* fp = fopen(path, "rb");
     if (fp == NULL) {
-#ifndef NDEBUG
+        #ifndef NDEBUG
         printf("Cant open %s\n", path);
-#endif
+        #endif
         exit(1);
     }
 
@@ -21,9 +21,9 @@ void read_file(const char* path, char** out) {
 
     char* buffer = malloc((size_t)length + 1);
     if (!buffer) {
-#ifndef NDEBUG
+        #ifndef NDEBUG
         printf("Could not assign memory to load shader files. %s\n", path);
-#endif
+        #endif
         fclose(fp);
         exit(1);
     }

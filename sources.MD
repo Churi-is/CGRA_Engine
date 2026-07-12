@@ -1,4 +1,20 @@
-# AI Use
+# Sources
+All sources I have or am using to complete this project.
+
+## Texts:
+### LearnOpenGL
+For most work I'm doing.
+https://learnopengl.com/book/book_pdf.pdf
+
+### C Programming Language - 2nd Edition (OCR)
+Regularly as a reference for things I have needed a refresher on.
+
+## "Solutions" / Stackoverflow
+
+### https://stackoverflow.com/questions/174531/how-to-read-the-content-of-a-file-to-a-string-in-c
+My initial solution wasn't working. I found and adapted this to work with my project.
+
+## AI Use
 Here I will document all instances I have used AI, how and why, and their Commit ID
 
 ### Initial Commit
