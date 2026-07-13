@@ -35,12 +35,23 @@ void read_file(const char* path, char** out) {
     *out = buffer;
 }
 
-unsigned int shader_register_shader(char** shaderSource, int shaderType) {
+unsigned int shader_register_shader(const char* shaderSource, int shaderType) {
     unsigned int shaderID;
     shaderID = glCreateShader(shaderType);
-    glShaderSource(shaderID, 1, shaderSource, NULL);
+    glShaderSource(shaderID, 1, &shaderSource, NULL);
     glCompileShader(shaderID);
-    render_check_shader(shaderID);
+    
+    int success;
+    char infoLog[512];
+    glGetShaderiv(shaderID, GL_COMPILE_STATUS, &success);
+    if(!success){
+        #ifndef NDEBUG
+        glGetShaderInfoLog(shaderID, 512, NULL, infoLog);
+        printf("Shader compilation failed for [%s].\n%s\n", shaderSource, infoLog);
+        #endif
+        exit(1);
+    }
+
     return shaderID;
 }
 
@@ -51,11 +62,15 @@ Shader shader_create_from_paths(char* vertPath, char* fragPath) {
     read_file(vertPath, &vertShaderString);
     read_file(fragPath, &fragShaderString);
 
+    return shader_create_from_strings(vertShaderString, fragShaderString);
+}
+
+Shader shader_create_from_strings(char* vertShaderString, char* fragShaderString) {
     unsigned int vertexShader = 
-        render_create_shader(vertShaderString, GL_VERTEX_SHADER);
+        shader_register_shader(vertShaderString, GL_VERTEX_SHADER);
 
     unsigned int fragmentShader = 
-        render_create_shader(fragShaderString, GL_FRAGMENT_SHADER);
+        shader_register_shader(fragShaderString, GL_FRAGMENT_SHADER);
 
     unsigned int shaderProgram = glCreateProgram();
 
@@ -68,8 +83,11 @@ Shader shader_create_from_paths(char* vertPath, char* fragPath) {
     char infoLog[512];
     glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
     if (!success) {
+        #ifndef NDEBUG
         glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
-        printf("ERROR::SHADER::VERTEX::COMPILATION_FAILED\n %s\n", infoLog);
+        printf("Shader program linking failed for [%s] and [%s].\n%s\n", vertShaderString, fragShaderString, infoLog);
+        #endif
+        exit(1);
     }
 
     glDeleteShader(vertexShader);
@@ -80,18 +98,15 @@ Shader shader_create_from_paths(char* vertPath, char* fragPath) {
     return s;
 }
 
-Shader shader_create_from_strings(char* vertString, char* fragString) {
-
-}
 void shader_use(Shader s) {
-    
+    glUseProgram(s.ID);
 }
 void shader_set_bool(Shader s, char* name, char value) {
-    
+    glUniform1i(glGetUniformLocation(s.ID, name), value);
 }
 void shader_set_int(Shader s, char* name, int value) {
-    
+    glUniform1i(glGetUniformLocation(s.ID, name), value);
 }
 void shader_set_float(Shader s, char* name, float value) {
-    
+    glUniform1f(glGetUniformLocation(s.ID, name), value);
 }

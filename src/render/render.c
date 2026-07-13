@@ -5,27 +5,6 @@
 #include "render.h"
 #include "shader.h"
 
-int render_check_shader(unsigned int shaderID) {
-    int success;
-    char infoLog[512];
-    glGetShaderiv(shaderID, GL_COMPILE_STATUS, &success);
-    if(!success){
-        glGetShaderInfoLog(shaderID, 512, NULL, infoLog);
-        printf("ERROR::SHADER::VERTEX::COMPILATION_FAILED\n %s\n", infoLog);
-        return 0;
-    }
-    return 1;
-}
-
-unsigned int render_create_shader(char** shaderSource, int shaderType) {
-    unsigned int shaderID;
-    shaderID = glCreateShader(shaderType);
-    glShaderSource(shaderID, 1, shaderSource, NULL);
-    glCompileShader(shaderID);
-    render_check_shader(shaderID);
-    return shaderID;
-}
-
 Object render_initialise(){
     #ifndef NDEBUG
     printf("Initalising OpenGL Buffers.\n");

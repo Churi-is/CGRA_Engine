@@ -12,9 +12,6 @@ int main()
     printf("You are Running a debug build.\n\n\n");
     #endif
 
-    char path[]  = "./src/main.c";
-    shader_create_from_paths(path, path);
-
     GLFWwindow* window = window_init();
     Object state = render_initialise();
 

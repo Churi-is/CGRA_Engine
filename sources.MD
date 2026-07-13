@@ -11,7 +11,8 @@ Regularly as a reference for things I have needed a refresher on.
 
 ## "Solutions" / Stackoverflow
 
-### https://stackoverflow.com/questions/174531/how-to-read-the-content-of-a-file-to-a-string-in-c
+### Reading Shader Files
+> https://stackoverflow.com/questions/174531/how-to-read-the-content-of-a-file-to-a-string-in-c - 
 My initial solution wasn't working. I found and adapted this to work with my project.
 
 ## AI Use

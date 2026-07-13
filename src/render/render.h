@@ -15,10 +15,6 @@ typedef struct {
 // so a mesh is a VAO + VBO + EBO
 // each shaderProgram is a Material type
 
-int render_check_shader(unsigned int shaderID);
-
-unsigned int render_create_shader(char** shaderSource, int shaderType);
-
 Mesh render_create_mesh(const float *vertices, size_t vertex_bytes,
                         const unsigned int *indices, size_t index_bytes);
 
