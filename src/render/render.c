@@ -4,21 +4,38 @@
 #include <math.h>
 #include "render.h"
 #include "shader.h"
+#include <stb_image.h>
 
 Object render_initialise(){
     #ifndef NDEBUG
     printf("Initalising OpenGL Buffers.\n");
     #endif
+
     // Triangle verts and indices
     float vertices[] = {
-    // positions        // colors
-     0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, // bottom right
-    -0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, // bottom left
-     0.0f,  0.5f, 0.0f, 0.0f, 0.0f, 1.0f // top
+    //  positions        // colors
+        0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, // bottom right
+       -0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, // bottom left
+        0.0f,  0.5f, 0.0f, 0.0f, 0.0f, 1.0f // top
     };
     unsigned int indices[] = {  // note that we start from 0!
         0, 1, 2
     };
+    float texCoords[] = {
+        0.0f, 0.0f, // lower-left corner
+        1.0f, 0.0f, // lower-right corner
+        0.5f, 1.0f // top-center corner
+    };
+
+    int width, height, nrChannels;
+    unsigned char *data = stbi_load("./assets/container.jpg", &width, &height, &nrChannels, 0);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+
+    unsigned int texture;
+    glGenTextures(1, &texture);
 
     Mesh mesh = render_create_mesh(vertices, sizeof(vertices), indices, sizeof(indices));
     

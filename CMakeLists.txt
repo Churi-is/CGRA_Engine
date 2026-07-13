@@ -33,6 +33,7 @@ FetchContent_MakeAvailable(glfw)
 # ---------------------------------------------------------------------------
 add_library(glad STATIC ${CMAKE_CURRENT_SOURCE_DIR}/libs/glad/src/glad.c)
 target_include_directories(glad PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/libs/glad/include)
+target_include_directories(glad PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/libs/stb_image)
 
 # ---------------------------------------------------------------------------
 # System OpenGL
