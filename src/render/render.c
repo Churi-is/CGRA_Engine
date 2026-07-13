@@ -61,7 +61,8 @@ Object render_initialise(){
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     // load image, create texture and generate mipmaps
-    data = stbi_load("./assets/container.jpg", &width, &height, &nrChannels, 0); // on train, lost recieption so using the same image
+    data = stbi_load("./assets/dadripzoom.jpg", &width, &height, &nrChannels, 0);
+    //TODO: It is slanted??? IDK why i cant figure it out.
     if (data)
     {
         // // note that the awesomeface.png has transparency and thus an alpha channel, so make sure to tell OpenGL the data type is of GL_RGBA
@@ -71,7 +72,7 @@ Object render_initialise(){
     }
     else
     {
-        printf("Failed to load texture. ['./assets/container.jpg'] 2");
+        printf("Failed to load texture. ['./assets/dadripzoom.jpg']");
     }
     stbi_image_free(data);
 
@@ -79,6 +80,12 @@ Object render_initialise(){
     Mesh mesh = render_create_mesh(vertices, sizeof(vertices), indices, sizeof(indices));
     
     Shader s = shader_create_from_paths("./src/render/shaders/vert.glsl", "./src/render/shaders/frag.glsl");
+
+    shader_use(s);
+    // either set it manually like so:
+    // or set it via the texture class
+    shader_set_int(s,"texture1", 0);
+    shader_set_int(s,"texture2", 1);
 
     Object o = {.mesh=mesh, .s=s, .texture1ID=texture1, .texture2ID=texture2}; // need another way to hold arbitrary ammounts of textures.
     return o;

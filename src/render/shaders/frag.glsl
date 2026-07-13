@@ -10,5 +10,11 @@ uniform sampler2D texture2;
 
 void main()
 {
-	FragColor = mix(texture(texture1, TexCoord), texture(texture2, TexCoord), 0.2);
+   if (0.95f < texture(texture2, TexCoord).r && 
+       0.95f < texture(texture2, TexCoord).b &&
+       0.95f < texture(texture2, TexCoord).g ){
+      FragColor = texture(texture1, TexCoord);
+   } else {
+      FragColor = mix(texture(texture1, TexCoord), texture(texture2, TexCoord), 0.5);
+   }
 }
