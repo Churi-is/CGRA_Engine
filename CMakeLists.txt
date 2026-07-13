@@ -51,6 +51,7 @@ add_executable(${PROJECT_NAME}
     src/window/window.c
     src/input/input.c
     src/render/shader.c
+    libs/stb_image/stb_image.h
 )
 
 if (MSVC)

@@ -10,6 +10,8 @@ typedef struct {
 typedef struct {
     Mesh mesh;
     Shader s;
+    int texture1ID;
+    int texture2ID;
 } Object;
 
 Mesh render_create_mesh(const float *vertices, size_t vertex_bytes,

@@ -4,6 +4,7 @@
 #include <math.h>
 #include "render.h"
 #include "shader.h"
+#define STB_IMAGE_IMPLEMENTATION 
 #include <stb_image.h>
 
 Object render_initialise(){
@@ -11,37 +12,75 @@ Object render_initialise(){
     printf("Initalising OpenGL Buffers.\n");
     #endif
 
-    // Triangle verts and indices
+    // verts and indices
     float vertices[] = {
-    //  positions        // colors
-        0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, // bottom right
-       -0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, // bottom left
-        0.0f,  0.5f, 0.0f, 0.0f, 0.0f, 1.0f // top
+        // positions          // colors           // texture coords
+         0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f, // top right
+         0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f, // bottom right
+        -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f, // bottom left
+        -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f  // top left 
     };
-    unsigned int indices[] = {  // note that we start from 0!
-        0, 1, 2
-    };
-    float texCoords[] = {
-        0.0f, 0.0f, // lower-left corner
-        1.0f, 0.0f, // lower-right corner
-        0.5f, 1.0f // top-center corner
+    unsigned int indices[] = {
+        0, 1, 3, // first triangle
+        1, 2, 3  // second triangle
     };
 
+    unsigned int texture1, texture2;
+    // texture 1
+    // ---------
+    glGenTextures(1, &texture1);
+    glBindTexture(GL_TEXTURE_2D, texture1); 
+     // set the texture wrapping parameters
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	// set texture wrapping to GL_REPEAT (default wrapping method)
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    // set texture filtering parameters
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    // load image, create texture and generate mipmaps
     int width, height, nrChannels;
+    stbi_set_flip_vertically_on_load(1); // tell stb_image.h to flip loaded texture's on the y-axis.
     unsigned char *data = stbi_load("./assets/container.jpg", &width, &height, &nrChannels, 0);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    if (data)
+    {
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+    }
+    else
+    {
+        printf("Failed to load texture. ['./assets/container.jpg']");
+    }
+    stbi_image_free(data);
+    // texture 2
+    // ---------
+    glGenTextures(1, &texture2);
+    glBindTexture(GL_TEXTURE_2D, texture2);
+    // set the texture wrapping parameters
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	// set texture wrapping to GL_REPEAT (default wrapping method)
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    // set texture filtering parameters
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    // load image, create texture and generate mipmaps
+    data = stbi_load("./assets/container.jpg", &width, &height, &nrChannels, 0); // on train, lost recieption so using the same image
+    if (data)
+    {
+        // // note that the awesomeface.png has transparency and thus an alpha channel, so make sure to tell OpenGL the data type is of GL_RGBA
+        // glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+    }
+    else
+    {
+        printf("Failed to load texture. ['./assets/container.jpg'] 2");
+    }
+    stbi_image_free(data);
 
-    unsigned int texture;
-    glGenTextures(1, &texture);
 
     Mesh mesh = render_create_mesh(vertices, sizeof(vertices), indices, sizeof(indices));
     
     Shader s = shader_create_from_paths("./src/render/shaders/vert.glsl", "./src/render/shaders/frag.glsl");
 
-    Object o = {.mesh=mesh, .s=s};
+    Object o = {.mesh=mesh, .s=s, .texture1ID=texture1, .texture2ID=texture2}; // need another way to hold arbitrary ammounts of textures.
     return o;
 }
 
@@ -60,11 +99,16 @@ Mesh render_create_mesh(const float *vertices, size_t vertex_bytes,
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, index_bytes, indices, GL_STATIC_DRAW);
-        
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+
+    // position attribute
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3* sizeof(float)));
+    // color attribute
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
+    // texture coord attribute
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+    glEnableVertexAttribArray(2);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0); 
     glBindVertexArray(0);
@@ -77,15 +121,16 @@ void render_frame(Object* o) {
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
-    unsigned int sp = o->s.ID;
-    glUseProgram(sp);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, o->texture1ID);
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, o->texture2ID);
 
-    float timeValue = (float)glfwGetTime();
-    float greenValue = (float)(sin(timeValue) / 2.0f) + 0.5f;
-    int vertexColorLocation = glGetUniformLocation(sp, "ourColor");
-    glUseProgram(sp);
-    glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);
+
+    shader_use(o->s);
 
     glBindVertexArray(o->mesh.VAO);
+
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
 }
