@@ -61,6 +61,10 @@ Object render_initialise(){
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     // load image, create texture and generate mipmaps
+    // Loaded JPG pixel row data is not padded but OpegnGL expects it to be padded to the nearest 4 bytes.
+    // Since the size of the image I'm using is not even its off by a few pixels each row, that was causing it to slant.
+    // this fucntion tells openGL to read it 1 byte at a time, it is 'slower' but then i dont need to sanitise my textures
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     data = stbi_load("./assets/dadripzoom.jpg", &width, &height, &nrChannels, 0);
     //TODO: It is slanted??? IDK why i cant figure it out.
     if (data)

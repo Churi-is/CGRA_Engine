@@ -9,6 +9,10 @@ https://learnopengl.com/book/book_pdf.pdf
 ### C Programming Language - 2nd Edition (OCR)
 Regularly as a reference for things I have needed a refresher on.
 
+### OpenGL Reference Pages
+I have downloaded a copy of the OpenGL documentation for when I am don't have reception.
+https://registry.khronos.org/OpenGL-Refpages/gl4/
+
 ## "Solutions" / Stackoverflow
 
 ### Reading Shader Files
