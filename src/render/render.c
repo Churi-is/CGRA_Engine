@@ -7,6 +7,42 @@
 #define STB_IMAGE_IMPLEMENTATION 
 #include <stb_image.h>
 
+
+unsigned int generate_texture(char* assetPath) {
+    stbi_set_flip_vertically_on_load(1); // tell stb_image.h to flip loaded texture's on the y-axis.
+    
+    unsigned int textureID;
+    
+    // set texture ID and register it.
+    glGenTextures(1, &textureID);
+    glBindTexture(GL_TEXTURE_2D, textureID); 
+
+     // set the texture wrapping parameters
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+    // set texture filtering parameters
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    // load image, create texture and generate mipmapsSS
+    int width, height, nrChannels;
+    unsigned char *data = stbi_load(assetPath, &width, &height, &nrChannels, 0);
+    if (data) {
+        glPixelStorei(GL_UNPACK_ALIGNMENT, nrChannels-1); // IDK if minus 1 is right or nr channels isnt what i think it is
+        glPixelStorei(GL_UNPACK_ROW_LENGTH, width);
+        glPixelStorei(GL_UNPACK_IMAGE_HEIGHT, height);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+    }
+    else {
+        printf("Failed to load texture. [%s] :(", assetPath);
+    }
+    stbi_image_free(data);
+
+    return textureID;
+}
+
 Object render_initialise(){
     #ifndef NDEBUG
     printf("Initalising OpenGL Buffers.\n");
@@ -25,61 +61,8 @@ Object render_initialise(){
         1, 2, 3  // second triangle
     };
 
-    unsigned int texture1, texture2;
-    // texture 1
-    // ---------
-    glGenTextures(1, &texture1);
-    glBindTexture(GL_TEXTURE_2D, texture1); 
-     // set the texture wrapping parameters
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	// set texture wrapping to GL_REPEAT (default wrapping method)
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    // set texture filtering parameters
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    // load image, create texture and generate mipmaps
-    int width, height, nrChannels;
-    stbi_set_flip_vertically_on_load(1); // tell stb_image.h to flip loaded texture's on the y-axis.
-    unsigned char *data = stbi_load("./assets/container.jpg", &width, &height, &nrChannels, 0);
-    if (data)
-    {
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-        glGenerateMipmap(GL_TEXTURE_2D);
-    }
-    else
-    {
-        printf("Failed to load texture. ['./assets/container.jpg']");
-    }
-    stbi_image_free(data);
-    // texture 2
-    // ---------
-    glGenTextures(1, &texture2);
-    glBindTexture(GL_TEXTURE_2D, texture2);
-    // set the texture wrapping parameters
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	// set texture wrapping to GL_REPEAT (default wrapping method)
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    // set texture filtering parameters
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    // load image, create texture and generate mipmaps
-    // Loaded JPG pixel row data is not padded but OpegnGL expects it to be padded to the nearest 4 bytes.
-    // Since the size of the image I'm using is not even its off by a few pixels each row, that was causing it to slant.
-    // this fucntion tells openGL to read it 1 byte at a time, it is 'slower' but then i dont need to sanitise my textures
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-    data = stbi_load("./assets/dadripzoom.jpg", &width, &height, &nrChannels, 0);
-    //TODO: It is slanted??? IDK why i cant figure it out.
-    if (data)
-    {
-        // // note that the awesomeface.png has transparency and thus an alpha channel, so make sure to tell OpenGL the data type is of GL_RGBA
-        // glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-        glGenerateMipmap(GL_TEXTURE_2D);
-    }
-    else
-    {
-        printf("Failed to load texture. ['./assets/dadripzoom.jpg']");
-    }
-    stbi_image_free(data);
-
+    unsigned int texture1 = generate_texture("./assets/container.jpg");
+    unsigned int texture2 = generate_texture("./assets/dadripzoom.jpg");
 
     Mesh mesh = render_create_mesh(vertices, sizeof(vertices), indices, sizeof(indices));
     
