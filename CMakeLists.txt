@@ -33,7 +33,6 @@ FetchContent_MakeAvailable(glfw)
 # ---------------------------------------------------------------------------
 add_library(glad STATIC ${CMAKE_CURRENT_SOURCE_DIR}/libs/glad/src/glad.c)
 target_include_directories(glad PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/libs/glad/include)
-target_include_directories(glad PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/libs/stb_image)
 
 # ---------------------------------------------------------------------------
 # System OpenGL
@@ -45,6 +44,9 @@ find_package(OpenGL REQUIRED)
 # ---------------------------------------------------------------------------
 
 ### vvv My Code vvv
+target_include_directories(glad PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/libs/cglm)
+target_include_directories(glad PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/libs/stb_image)
+
 add_executable(${PROJECT_NAME} 
     src/main.c
     src/render/render.c

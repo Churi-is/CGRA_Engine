@@ -66,19 +66,19 @@ Object render_initialise(){
 
     Mesh mesh = render_create_mesh(vertices, sizeof(vertices), indices, sizeof(indices));
     
+    // assemble shader
     Shader s = shader_create_from_paths("./src/render/shaders/vert.glsl", "./src/render/shaders/frag.glsl");
 
     shader_use(s);
-    // either set it manually like so:
-    // or set it via the texture class
     shader_set_int(s,"texture1", 0);
-    shader_set_int(s,"texture2", 1);
+    shader_set_int(s,"texture2", 1); // maybe makes more sense to store the texture in the shader, rather than the object?
 
     Object o = {.mesh=mesh, .s=s, .texture1ID=texture1, .texture2ID=texture2}; // need another way to hold arbitrary ammounts of textures.
     return o;
 }
 
 // NOTE: could have a output pointer as parameter, save the copying for larger meshes.
+// Also many magic numbers that need params or to be dirived from elsewhere
 Mesh render_create_mesh(const float *vertices, size_t vertex_bytes,
                         const unsigned int *indices, size_t index_bytes) {
     unsigned int VAO, VBO, EBO;
