@@ -34,10 +34,20 @@ unsigned int generate_texture(char* assetPath) {
     int width, height, nrChannels;
     unsigned char *data = stbi_load(assetPath, &width, &height, &nrChannels, 0);
     if (data) {
-        glPixelStorei(GL_UNPACK_ALIGNMENT, nrChannels-1); // IDK if minus 1 is right or nr channels isnt what i think it is
+        GLenum format;
+        switch (nrChannels) {
+            case 1: format = GL_RED;  break;
+            case 3: format = GL_RGB;  break;
+            case 4: format = GL_RGBA; break;
+            default:
+                printf("Unexpected channel count (%d) for [%s]\n", nrChannels, assetPath);
+                stbi_image_free(data);
+                return 0;
+        }
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
         glPixelStorei(GL_UNPACK_ROW_LENGTH, width);
         glPixelStorei(GL_UNPACK_IMAGE_HEIGHT, height);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+        glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
         glGenerateMipmap(GL_TEXTURE_2D);
     }
     else {

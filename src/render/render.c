@@ -6,6 +6,7 @@
 #include "shader.h"
 #define STB_IMAGE_IMPLEMENTATION 
 #include <stb_image.h>
+#include <cglm.h>
 
 
 unsigned int generate_texture(char* assetPath) {
@@ -29,10 +30,20 @@ unsigned int generate_texture(char* assetPath) {
     int width, height, nrChannels;
     unsigned char *data = stbi_load(assetPath, &width, &height, &nrChannels, 0);
     if (data) {
-        glPixelStorei(GL_UNPACK_ALIGNMENT, nrChannels-1); // IDK if minus 1 is right or nr channels isnt what i think it is
+        GLenum format;
+        switch (nrChannels) {
+            case 1: format = GL_RED;  break;
+            case 3: format = GL_RGB;  break;
+            case 4: format = GL_RGBA; break;
+            default:
+                printf("Unexpected channel count (%d) for [%s]\n", nrChannels, assetPath);
+                stbi_image_free(data);
+                return 0;
+        }
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
         glPixelStorei(GL_UNPACK_ROW_LENGTH, width);
         glPixelStorei(GL_UNPACK_IMAGE_HEIGHT, height);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+        glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
         glGenerateMipmap(GL_TEXTURE_2D);
     }
     else {
@@ -67,13 +78,30 @@ Object render_initialise(){
     Mesh mesh = render_create_mesh(vertices, sizeof(vertices), indices, sizeof(indices));
     
     // assemble shader
-    Shader s = shader_create_from_paths("./src/render/shaders/vert.glsl", "./src/render/shaders/frag.glsl");
+    Shader s = shader_create_from_paths("./src/render/shaders/demo.vs", "./src/render/shaders/demo.fs");
 
     shader_use(s);
     shader_set_int(s,"texture1", 0);
     shader_set_int(s,"texture2", 1); // maybe makes more sense to store the texture in the shader, rather than the object?
 
     Object o = {.mesh=mesh, .s=s, .texture1ID=texture1, .texture2ID=texture2}; // need another way to hold arbitrary ammounts of textures.
+    //also probaly dont need a struc for shader if its just holding the ID and nothing else
+
+    // cglm matrices (and vectors) are mostly just float arrays.
+    vec4 vector = {1.0f, 0.0f, 0.0f, 1.0f};
+    // initialises an identity matrix (1s diagonally to row and col 3)
+    mat4 translation = GLM_MAT4_IDENTITY_INIT;
+    // Translate the matrix by {1, 1, 0}
+    glm_translate(translation, (vec3){.5f, .5f, 0.0f});
+    // multiply the vector by the translation matrix. store result back in vec
+    glm_mat4_mulv(translation, vector, vector); 
+
+    glm_rotate(translation, glm_rad(90.0f), (vec3){0.0f, 0.0f, 1.0f});
+    glm_scale(translation, (vec3){0.5f, 0.5f, 0.5f});
+
+    unsigned int transformLoc = glGetUniformLocation(o.s.ID,"transform");
+    glUniformMatrix4fv(transformLoc, 1, GL_FALSE, (float *)translation);
+
     return o;
 }
 
