@@ -14,8 +14,7 @@ typedef struct {
     int texture2ID;
 } Object;
 
-Mesh render_create_mesh(const float *vertices, size_t vertex_bytes,
-                        const unsigned int *indices, size_t index_bytes);
+Mesh render_create_mesh();
 
 Object render_initialise();
 

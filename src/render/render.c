@@ -59,24 +59,25 @@ Object render_initialise(){
     #ifndef NDEBUG
     printf("Initalising OpenGL Buffers.\n");
     #endif
+    glEnable(GL_DEPTH_TEST);
 
-    // verts and indices
-    float vertices[] = {
-        // positions          // colors           // texture coords
-         0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f, // top right
-         0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f, // bottom right
-        -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f, // bottom left
-        -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f  // top left 
-    };
-    unsigned int indices[] = {
-        0, 1, 3, // first triangle
-        1, 2, 3  // second triangle
-    };
+    // // verts and indices
+    // float vertices[] = {
+    //     // positions          // colors           // texture coords
+    //      0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f, // top right
+    //      0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f, // bottom right
+    //     -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f, // bottom left
+    //     -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f  // top left 
+    // };
+    // unsigned int indices[] = {
+    //     0, 1, 3, // first triangle
+    //     1, 2, 3  // second triangle
+    // };
 
     unsigned int texture1 = generate_texture("./assets/container.jpg");
     unsigned int texture2 = generate_texture("./assets/dadripzoom.jpg");
 
-    Mesh mesh = render_create_mesh(vertices, sizeof(vertices), indices, sizeof(indices));
+    Mesh mesh = render_create_mesh();
     
     // assemble shader
     Shader s = shader_create_from_paths("./src/render/shaders/demo.vs", "./src/render/shaders/demo.fs");
@@ -94,29 +95,69 @@ Object render_initialise(){
 
 // NOTE: could have a output pointer as parameter, save the copying for larger meshes.
 // Also many magic numbers that need params or to be dirived from elsewhere
-Mesh render_create_mesh(const float *vertices, size_t vertex_bytes,
-                        const unsigned int *indices, size_t index_bytes) {
+Mesh render_create_mesh() {
+float vertices[] = {
+        -0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
+        0.5f, -0.5f, -0.5f, 1.0f, 0.0f,
+        0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
+        0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
+        -0.5f, 0.5f, -0.5f, 0.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
+        -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
+        0.5f, -0.5f, 0.5f, 1.0f, 0.0f,
+        0.5f, 0.5f, 0.5f, 1.0f, 1.0f,
+        0.5f, 0.5f, 0.5f, 1.0f, 1.0f,
+        -0.5f, 0.5f, 0.5f, 0.0f, 1.0f,
+        -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
+        -0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+        -0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+        -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
+        -0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+        0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+        0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
+        0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+        0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+        0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
+        0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+        -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+        0.5f, -0.5f, -0.5f, 1.0f, 1.0f,
+        0.5f, -0.5f, 0.5f, 1.0f, 0.0f,
+        0.5f, -0.5f, 0.5f, 1.0f, 0.0f,
+        -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
+        -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+        -0.5f, 0.5f, -0.5f, 0.0f, 1.0f,
+        0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
+        0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+        0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+        -0.5f, 0.5f, 0.5f, 0.0f, 0.0f,
+        -0.5f, 0.5f, -0.5f, 0.0f, 1.0f
+    };
+
+
     unsigned int VAO, VBO, EBO;
+    EBO = 1; // to make compiler happy
     glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, &EBO);
+    // glGenBuffers(1, &EBO);
     glGenBuffers(1, &VBO);
 
     glBindVertexArray(VAO);
 
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, vertex_bytes, vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, index_bytes, indices, GL_STATIC_DRAW);
+    // glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    // glBufferData(GL_ELEMENT_ARRAY_BUFFER, index_bytes, indices, GL_STATIC_DRAW);
 
     // position attribute
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
     // color attribute
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
+    // glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+    // glEnableVertexAttribArray(1);
     // texture coord attribute
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(2);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0); 
@@ -127,18 +168,11 @@ Mesh render_create_mesh(const float *vertices, size_t vertex_bytes,
 }
 
 void transform(Object* o) {
-    vec4 vector = {1.0f, 0.0f, 0.0f, 1.0f};
-    mat4 translation = GLM_MAT4_IDENTITY_INIT;
-    glm_translate(translation, (vec3){0.5f, -0.5f, 0.0f});
-    glm_rotate(translation, (float)glfwGetTime(), (vec3){0.0f, 0.0f, 1.0f});
-
-    unsigned int transformLoc = glGetUniformLocation(o->s.ID,"transform");
-    glUniformMatrix4fv(transformLoc, 1, GL_FALSE, (float *)translation);
 }
 
 void render_frame(Object* o) {
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, o->texture1ID);
@@ -156,7 +190,7 @@ void render_frame(Object* o) {
     // process all the matracies, T
     unsigned int modelMatrixLoc = glGetUniformLocation(o->s.ID,"model");
     mat4 modelMatrix = GLM_MAT4_IDENTITY_INIT;
-    glm_rotate(modelMatrix, glm_rad(-55.0f), (vec3){1.0f, 0.0f, 0.0f});
+    glm_rotate(modelMatrix, (float)glfwGetTime() * glm_rad(50.0f), (vec3){0.5f, 1.0f, 0.0f});
     glUniformMatrix4fv(modelMatrixLoc, 1, GL_FALSE, (float *)modelMatrix);
 
     unsigned int viewMatrixLoc = glGetUniformLocation(o->s.ID,"view");
@@ -174,6 +208,6 @@ void render_frame(Object* o) {
 
     glBindVertexArray(o->mesh.VAO);
 
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-
+    // glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+    glDrawArrays(GL_TRIANGLES, 0, 36);
 }
