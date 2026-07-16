@@ -88,20 +88,6 @@ Object render_initialise(){
     Object o = {.mesh=mesh, .s=s, .texture1ID=texture1, .texture2ID=texture2}; // need another way to hold arbitrary ammounts of textures.
     //also probaly dont need a struc for shader if its just holding the ID and nothing else
 
-    // cglm matrices (and vectors) are mostly just float arrays.
-    vec4 vector = {1.0f, 0.0f, 0.0f, 1.0f};
-    // initialises an identity matrix (1s diagonally to row and col 3)
-    mat4 translation = GLM_MAT4_IDENTITY_INIT;
-    // Translate the matrix by {1, 1, 0}
-    glm_translate(translation, (vec3){.5f, .5f, 0.0f});
-    // multiply the vector by the translation matrix. store result back in vec
-    glm_mat4_mulv(translation, vector, vector); 
-
-    glm_rotate(translation, glm_rad(90.0f), (vec3){0.0f, 0.0f, 1.0f});
-    glm_scale(translation, (vec3){0.5f, 0.5f, 0.5f});
-
-    unsigned int transformLoc = glGetUniformLocation(o.s.ID,"transform");
-    glUniformMatrix4fv(transformLoc, 1, GL_FALSE, (float *)translation);
 
     return o;
 }
@@ -140,6 +126,16 @@ Mesh render_create_mesh(const float *vertices, size_t vertex_bytes,
     return m;
 }
 
+void transform(Object* o) {
+    vec4 vector = {1.0f, 0.0f, 0.0f, 1.0f};
+    mat4 translation = GLM_MAT4_IDENTITY_INIT;
+    glm_translate(translation, (vec3){0.5f, -0.5f, 0.0f});
+    glm_rotate(translation, (float)glfwGetTime(), (vec3){0.0f, 0.0f, 1.0f});
+
+    unsigned int transformLoc = glGetUniformLocation(o->s.ID,"transform");
+    glUniformMatrix4fv(transformLoc, 1, GL_FALSE, (float *)translation);
+}
+
 void render_frame(Object* o) {
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
@@ -149,13 +145,30 @@ void render_frame(Object* o) {
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, o->texture2ID);
 
-    vec4 vector = {1.0f, 0.0f, 0.0f, 1.0f};
-    mat4 translation = GLM_MAT4_IDENTITY_INIT;
-    glm_translate(translation, (vec3){0.5f, -0.5f, 0.0f});
-    glm_rotate(translation, (float)glfwGetTime(), (vec3){0.0f, 0.0f, 1.0f});
+    // transform(&o);
 
-    unsigned int transformLoc = glGetUniformLocation(o->s.ID,"transform");
-    glUniformMatrix4fv(transformLoc, 1, GL_FALSE, (float *)translation);
+    // glm::perspective(glm::radians(45.0f), (float)width / (float)height, 0.1f, 100.0f);
+    // glm_perspective(glm_rad(45.0f), (float)viewport[2] / (float)viewport[3], 0.1f, 100.0f, 0);
+
+        int viewport[4];
+    glGetIntegerv(GL_VIEWPORT, viewport);
+
+    // process all the matracies, T
+    unsigned int modelMatrixLoc = glGetUniformLocation(o->s.ID,"model");
+    mat4 modelMatrix = GLM_MAT4_IDENTITY_INIT;
+    glm_rotate(modelMatrix, glm_rad(-55.0f), (vec3){1.0f, 0.0f, 0.0f});
+    glUniformMatrix4fv(modelMatrixLoc, 1, GL_FALSE, (float *)modelMatrix);
+
+    unsigned int viewMatrixLoc = glGetUniformLocation(o->s.ID,"view");
+    mat4 viewMatrix = GLM_MAT4_IDENTITY_INIT;
+    glm_translate(viewMatrix, (vec3){0.0f, 0.0f, -3.0f});
+    glUniformMatrix4fv(viewMatrixLoc, 1, GL_FALSE, (float *)viewMatrix);
+
+
+    unsigned int projectionMatrixLoc = glGetUniformLocation(o->s.ID,"projection");
+    mat4 projectionMatrix = GLM_MAT4_IDENTITY_INIT;
+    glm_perspective(glm_rad(45.0f), (float)viewport[2] / (float)viewport[3], 0.1f, 100.0f, projectionMatrix);
+    glUniformMatrix4fv(projectionMatrixLoc, 1, GL_FALSE, (float *)projectionMatrix);
 
     shader_use(o->s);
 
