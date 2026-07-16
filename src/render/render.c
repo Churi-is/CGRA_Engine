@@ -40,7 +40,8 @@ unsigned int generate_texture(char* assetPath) {
                 stbi_image_free(data);
                 return 0;
         }
-        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 1); // i dont think this is ideal but its the only thing that fixes dadripzoom.jpg being slanted and colourless.
+                                               // with this flag it opengl reads one byte at a time rather than the whole pixel data, so its slower in theory
         glPixelStorei(GL_UNPACK_ROW_LENGTH, width);
         glPixelStorei(GL_UNPACK_IMAGE_HEIGHT, height);
         glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
@@ -148,6 +149,13 @@ void render_frame(Object* o) {
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, o->texture2ID);
 
+    vec4 vector = {1.0f, 0.0f, 0.0f, 1.0f};
+    mat4 translation = GLM_MAT4_IDENTITY_INIT;
+    glm_translate(translation, (vec3){0.5f, -0.5f, 0.0f});
+    glm_rotate(translation, (float)glfwGetTime(), (vec3){0.0f, 0.0f, 1.0f});
+
+    unsigned int transformLoc = glGetUniformLocation(o->s.ID,"transform");
+    glUniformMatrix4fv(transformLoc, 1, GL_FALSE, (float *)translation);
 
     shader_use(o->s);
 
