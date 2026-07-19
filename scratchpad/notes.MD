@@ -1,5 +1,9 @@
 # Notes
 
+### Physics
+Time splting, find when the collision occoured. binary search
+spatial partitioning, based on max speed. Hierachical bounding volumes. PLane sweep
+
 ### Style
 I am likely going to rewrite most the stuff ive done from the tutorial once i finish part one, my code now is messy.
 I need to get better at naming stuff.
@@ -15,3 +19,5 @@ have a list of EntityEntry structs containing ID and and the entitys pointer. lo
 A Mesh effectivly is a VAO + VBO + EBO. PLus index count and draw mode
 A Material is a shaderProgram + textures.
 A Object/Pawn is a Mesh/s with a Material/s and a position and transform
+
+I want ot split physics and render updates, prefferablily on 2 threads, not sure how much extra scope that is. low priority.
